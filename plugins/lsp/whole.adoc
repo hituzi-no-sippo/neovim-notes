@@ -1,0 +1,138 @@
+= 全般
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-22T14:37:02+0900
+:revremark: add lspsaga
+:adoctype: article
+:description: Plugins that add or change the overall features \
+              of builtin LSP client.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-22T14:37:02+0900
+:creation-date: 2021-08-22T07:23:23+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [plugin, LSP]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-notes
+
+
+builtin LSP client全般の機能を追加・変更するpluginsです。
+特定の機能だけではなく、builtin LSP clientを利用した多くの機能を追加・変更します。
+
+:lspsaga-url: {github-url}/glepnir/lspsaga.nvim
+== link:{lspsaga-url}[lspsaga.nvim^] (2021-08-20)
+
+[NOTE]
+====
+4月から更新されていません。
+link:{lspsaga-url}/pull/207#issuecomment-863150249[作者が入院中^]なので更新できないみたいです。
+====
+
+`vim.lsp.\***` の処理は書き替えず、独自の関数を利用します。
+
+cursor下のsymbolのdefinitionとreference一覧を表示し、preview&移動できる `lsp_finder` があります。
+殆どの人が、これ目当てでこのpluginを導入している印象です。
+入力や表示をfloating windowにして、視線移動を少なくしているのも良いです。
+
+=== `vim.lsp.buf` にはない機能
+
+.lsp_finder
+cursor下のsymbolのdefinitionとreference一覧を表示します。
+floating windowで表示し、previewも表示できます。
+選択したdefinitionとreferenceに移動できます。
+
+[CAUTION]
+====
+previewが表示されないbugがあり、link:{lspsaga-url}/pull/207[
+pull request^]は作成されています。
+====
+
+.preview_definition
+cursor下のsymbolのdefinitionを表示します。
+cursorのすぐ下に、floating windowで表示します。
+`vim.lsp.buf.definition()` のように移動はしません。
+
+=== `vim.lsp.buf.\***()` の入力や表示をcommand line => floating windowに変更した
+
+.rename
+cursor下の変数・関数名を、入力した名前に変更します。
+`vim.lsp.buf.rename()` より視線移動が少ないです。
+lspsagaは、cursor位置の下にfloatig windowを生成し、そこが入力欄になります。
+`vim.lsp.buf.rename()` は、入力欄がcommand lineなので、視線を一番下に移動しないといけません。
+入力のdefaultも違います。lspsagaは何も入力されません。 `vim.lsp.buf.rename()` は変更前の名前になります。
+
+.code_action
+cursor位置で実行できるcdde action一覧を表示し、選択したcode actionを実行します。
+`vim.lsp.buf.code_action()` より視線移動は少ないです。
+lspsagaは、cursor位置の下にfloatig windowを生成し、そこが表示&選択欄になります。
+`vim.lsp.buf.code_action()` は、入力がcommand lineなので、視線を一番下に移動しないといけません。
+code actionの選択方法も違います。lspsagaはcursorで選択します。 `vim.lsp.buf.code_action()` は番号を入力します。
+
+=== `vim.lsp.{buf|diagnostic}.\***()` の表示を少し変更しただけ
+
+`vim.lsp.{buf|diagnostic}.\***()` より見やすいとは感じませんでした。すきずきだと思います。
+
+.hover_doc
+cursor下のsymbolの情報を表示します。
+cursorのすぐ下に、floating windowで表示します。
+`vim.lsp.buf.hover()` の表示内容と表示方法は同じです。
+
+.signature_help()
+cursor下のsymbolのsignatureを表示します。
+cursorのすぐ下に、floating windowで表示します。
+`vim.lsp.buf.signature_help()` の表示内容と表示方法は同じです。
+
+.show_line_diagnostics
+cursor行に該当する診断結果を表示します。
+cursorのすぐ下に、floating windowで表示します。
+`vim.lsp.diagnostic.show_line_diagnostics()` の表示内容と表示方法は同じです
+
+.show_cursor_diagnostics
+cursor位置に該当する診断結果を表示します。
+cursorのすぐ下に、floating windowで表示します。
+`vim.lsp.diagnostic.show_position_diagnostics()` の表示内容と表示方法は同じです
+
+.diagnostic_jump_{prev|next}
+前後の診断結果に移動して、診断結果を表示します。
+cursorのすぐ下に、floating windowで診断結果を表示します。
+`vim.lsp.diagnostic.goto_{prev|next}()` の表示内容と表示方法は同じです
+
+=== Terminal
+
+.{open|close}_floaterm
+terminalを開閉します。terminalはfloating  windowで表示します。
+
+=== 動作確認していない
+
+.implement
+implementに対応しているLSP serverの環境がないので確認していません。
+
+.range_code_action
+使い方わからない&調べていません。
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]

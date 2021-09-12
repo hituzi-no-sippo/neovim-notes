@@ -1,0 +1,142 @@
+= builtin LSP clientで取得した情報を表示する
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-23T10:10:20+0900
+:revremark: add trouble
+:adoctype: article
+:description: Plugins that display information getting from builtin LSP client.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-23T10:10:20+0900
+:creation-date: 2021-08-22T14:37:34+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [plugin, LSP, display]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-notes
+
+
+builtin LSP clientで取得した情報を表示するpluginsです。
+
+:trouble-url: {github-url}/folke/trouble.nvim
+:trouble-link: link:{trouble-url}[trouble.nvim^]
+== {trouble-link} (2021-08-18)
+
+画面の1番下にwindow(trouble window)を生成して、次の結果をfileの階層構造で見やすく表示します。
+
+:neovim-help-url: https://neovim.io/doc/user
+:lsp-help-url: {neovim-help-url}/lsp.html
+:references-link: link:{lsp-help-url}#vim.lsp.buf.references()[ \
+  vim.lsp.buf.references()^]
+:definition-link: link:{lsp-help-url}#vim.lsp.buf.definition()[ \
+  vim.lsp.buf.definition()^])
+:implementation-link: link:{lsp-help-url}#vim.lsp.buf.implementation()[ \
+  vim.lsp.buf.implementation()^])
+:diagnostic-set-qflist-link: link:{lsp-help-url}#vim.lsp.diagnostic.set_qflist()
+:document-diagnostic-link: {diagnostic-set-qflist-link}[ \
+  vim.lsp.diagnostic.set_qlist({workspace = false})^])
+:workspace-diagnostic-link: {diagnostic-set-qflist-link}[ \
+  vim.lsp.diagnostic.set_qlist({workspace = true})^])
+:quickfix-link: link:{neovim-help-url}/quickfix.html#quickfix[quickfix^]
+:location-list-link: link:{neovim-help-url}/quickfix.html#location-list[location list^]
+:telescope-link: link:{trouble-url}#telescope[telescope^]
+.表示できる結果
+* `vim.lsp.\***`
+  ** references ({references-link})
+  ** definitions ({definition-link})
+  ** implementations ({implementation-link})
+  ** diagnostics(診断結果は自動で更新されます。)
+    *** document ({document-diagnostic-link})
+    *** workspace ({workspace-diagnostic-link})
+* {quickfix-link}
+* {location-list-link}
+* {telescope-link}
+
+=== Troubleと `vim.lsp.\***` の表示の比較
+
+[%collapsible%open]
+====
+[literal]
+.`Trouble lsp_document_diagnostics` (下記のiconを使わない設定で使用)
+....
+v lua/plugins/init.lua  4
+    E  Unexpected <exp> . Lua Syntax Check.(exp-in-action) [17, 1]
+    W  Undefined global `ocal`. Lua Diagnostics.(undefined-global) [17, 1]
+    I  Global variable in lowercase initial, Did you miss `local` or misspell it? Lua Diagnostics.(lowercase-global) [17, 6]
+    I  Global variable in lowercase initial, Did you miss `local` or misspell it? Lua Diagnostics.(lowercase-global) [20, 5]
+....
+
+`vim.lsp.diagnostic.set_loclist({workspace = false})`
+[literal]
+....
+lua/plugins/init.lua|17 col 1 error| Unexpected <exp> .
+lua/plugins/init.lua|17 col 6 info| Global variable in lowercase initial, Did you miss `local` or misspell it?
+lua/plugins/init.lua|17 col 1 warning| Undefined global `ocal`.
+lua/plugins/init.lua|20 col 5 info| Global variable in lowercase initial, Did you miss `local` or misspell it?
+....
+
+.iconを使わない設定
+[TIP]
+========
+[soure, lua]
+----
+require("trouble").setup{
+  icons = false,
+  fold_open = "v",
+  fold_closed = ">",
+  indent_lines = false,
+  use_lsp_diagnostic_signs = true,  -- <1>
+}
+----
+<1> builtin LSP cilentのdiagnostics singsで表示します。
+
+この場合、
+link:{github-url}/kyazdani42/nvim-web-devicons[nvim-web-devicons^] はいりません。
+========
+====
+
+===  `vim.lsp.\***` より、Troubleのほうが優れている点
+
+* xref:troubleと-vim-lsp-の表示の比較[fileの階層構造で表示して、見やすい] +
+  `vim.lsp.\***` ではfileごとに分けて表示しません。
+* cursorを合わせると、情報元を自動で表示する +
+  `vim.lsp.\***` ではkbd:[Enter]を押さないと、情報元を表示できません。
+* 診断結果を自動で更新する +
+  `vim.lsp.diagnostic.set_{q|loc}list` では、診断結果を自動で更新しません。
+
+=== 操作方法
+
+. `Trouble` commandで、trouble windowを開く +
+  trouble windowがcurrent widowになります。
+. trouble window内で、気になる情報へcursorを移動する +
+  cursor行の情報元のbuffer(preview buffer)を自動で表示します。情報元の箇所も強調します。
+  trouble windowの前に操作していたwindowが、preview bufferを表示するwindow(preview window)になるようです。
+. kbd:[Enter]を押すと、preview windowがcurrent widowになる
+. `TroubleClose` commandで、trouble windowを閉じる +
+  trouble windowを閉じると、trouble windowを開く前に、preview windowの表示は戻ります。
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]

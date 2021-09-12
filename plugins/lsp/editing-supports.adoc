@@ -1,0 +1,92 @@
+= 編集支援
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-22T16:17:16+0900
+:revremark: add lsp_signature
+:adoctype: article
+:description: Plugins of editing supports used builtin LSP client.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-22T16:17:16+0900
+:creation-date: 2021-08-22T15:53:46+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [plugin, LSP, signature]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-notes
+
+
+builtin LSP clientを使用して、編集を支援するpluginsです。
+
+== link:{github-url}/ray-x/lsp_signature.nvim[lsp_signature.nvim^]  (2021-08-19)
+
+引数入力時に、引数の情報を自動で表示し、引数の入力を支援します。
+
+.入力する引数の名前と型を自動的に表示する
+関数呼び出しを書くときに、次を自動的に表示します。関数呼び出しを書き終えると、全ての表示は消えます。
+
+* 入力する引数の名前と型
+* 全ての引数の名前と型
+* 関数の説明(可能であれば)
+
+1番上はvirtual text、他はfloating windowで表示します。
+"全ての引数の名前と型"、"関数の説明"は `vim.lsp.buf.signature_help()` で表示される内容と同じようです。
+
+.1つの引数の名前と型を強調して表示する
+次の2つで、lつの引数の名前と型を強調して表示します。
+[horizontal]
+"全ての引数の名前と型":: 入力する引数
+`vim.lsp.buf.signature_help()`:: cursor下の引数
+
+.virtual textのhint prefixをbuilt-in LSPのHintのsignにする設定
+[TIP]
+====
+[source, Lua]
+----
+local lsp_hint_sign = vim.fn.sign_getdefined('LspDiagnosticsSignHint')[1].text
+require"lsp_signature".setup({
+  hint_prefix = lsp_hint_sign,
+})
+----
+<1> dictなので、`[1]` が必要です
++
+--
+.`print(vim.inspect(vim.fn.sign_getdefined('LspDiagnosticsSignHint')))`
+[source, Lua]
+----
+{{
+  linehl = "",
+  name = "LspDiagnosticsSignHint",
+  numhl = "",
+  text = "H ",
+  texthl = "LspDiagnosticsSignHint"
+}}
+----
+--
+====
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
