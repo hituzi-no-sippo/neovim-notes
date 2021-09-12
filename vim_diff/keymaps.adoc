@@ -1,9 +1,9 @@
 = Keymaps
 :author: hituzi no sippo
 :!email:
-:revnumber: v1.0.0
-:revdate: 2021-08-24T12:11:09+0900
-:revremark: add section that change Y default keymap
+:revnumber: v1.1.0
+:revdate: 2021-08-24T13:34:39+0900
+:revremark: add section that change CTRL-w and CTRL-u default keymaps
 :adoctype: article
 :description: Difference keymaps between Neovim and Vim.
 :title:
@@ -65,6 +65,37 @@ normal modeだけで有効です。visual modeで kbd:[Y] を押すと、行全�
 
 .PR
 * link:{neovim-repository-url}/pull/13268[default mapping: Y => y$^]
+
+
+== CTRL-{w|u}: 削除前にundo blockを追加する
+
+insert modeで kbd:[CTRL + w] や kbd:[CTRL + u] すると、undo blockを追加してから、文字を削除します。
+kbd:[ctrL + w] や kbd:[CTRL + u] を実行した後の文字には違いはありません。
+undo(kbd:[u])すると、違いがわかります。
+kbd:[CTRL + w] や kbd:[CTRL + u] した地点で止まります。
+
+次の操作をしたとき、undoの結果は表のようになります。
+
+. insert modeにする
+. `abc,` と書く
+. 一旦insert modeから抜けて、normal modeにする
+. insert modeにする
+. `123` と追記して、 kbd:[CTRL + w] で削除する
+. `456` と追記して、 kbd:[CTRL + w] で削除する
+. `789` と追記する
+. insert modeから抜けて、normal modeにする
+. undo(kbd:[u])する
+
+.undo結果
+[options='header, autowidth']
+|====
+|       | undoする前 | undo1回目 | 2回目           | 3回目
+|Neovim | `abc,789`  | `abc,456` | `abc,123`       | `abc,`
+|Vim    | `abc,789`  | `abc,`    | `abc,` も消える |
+|====
+
+.PR
+* link:{neovim-repository-url}/pull/15400[set undo points in <C-U>, <C-W>^]
 
 
 // tag::copyright[]
