@@ -1,9 +1,9 @@
 = Options
 :author: hituzi no sippo
 :!email:
-:revnumber: v1.0.0
-:revdate: 2021-08-24T19:57:13+0900
-:revremark: add inccommand
+:revnumber: v1.1.0
+:revdate: 2021-08-25T08:55:00+0900
+:revremark: add hidden
 :adoctype: article
 :description: Difference options between Neovim and Vim.
 :title:
@@ -77,6 +77,19 @@ split::
 ====
 2016年には追加しており、v0.5でも使用できます。
 ====
+
+
+== Default値を変更
+
+=== link:{neovim-options-help-url}#'hidden'[hidden^]
+
+有効(`hidden`)に変更しています。
+変更を保存していないbufferを
+kbd:[CTRL + c](`close`) や `b{previous|nemt}` で非表示にできます。
+
+.PR
+* link:{neovim-repository-url}/pull/15410[
+  defaults: enable 'hidden', disable 'joinspaces'^]
 
 
 // tag::copyright[]
