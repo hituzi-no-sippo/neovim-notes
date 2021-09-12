@@ -1,0 +1,229 @@
+= `packadd` commandのerror
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-25T17:58:47+0900
+:revremark: First Edition
+:adoctype: article
+:description: packadd error
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-25T17:58:47+0900
+:creation-date: 2021-08-25T11:47:31+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [dev, packadd, command]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-memo
+:neovim-repository-url: {github-url}/neovim/neovim
+:neovim-help-url: https://neovim.io/doc/user
+
+存在しないdirectory nameを引数にした際、
+link:{neovim-help-url}/repeat.html#:packadd[
+packadd^] commandでerrorが発生するときと、しないときがあります。
+
+Neovim起動時だとerrorが発生します。
+command line、keymap、autocmdだとerrorは発生しません。
+
+Vimでは動作確認してなく、Neovim特有かはわかりません。
+
+== 動作確認方法
+
+.init.vim
+[source, vim]
+----
+function Packadd_test(directory_name)
+  packadd a:directory_name
+  echomsg a:directory_name
+  echomsg 'End'
+endfunction
+call Packadd_test('<存在しないdirectory name>')
+map z :call Packadd_test('<存在しないdirectory name>')<CR>
+autocmd BufWritePost * call Packadd_test('<存在しないdirectory name>')
+----
+
+.plugin/packadd.vim
+[source, vim]
+----
+call Packadd_test('<plugin directoryから実行>')
+----
+
+=== 結果
+
+==== Errorが発生する
+
+.Neovim起動時
+[literal]
+....
+Error detected while processing function Packadd_test:
+line    1:
+E919: Directory not found in 'packpath': "pack/*/opt/a:directory_name"
+<存在しないdirectory name>
+END
+E919: Directory not found in 'packpath': "pack/*/opt/a:directory_name"
+<plugin directoryから実行>
+END
+....
+
+==== Error発生しない
+
+.commandline
+[literal]
+....
+set verbose=11 | call Packadd_test('<Command lineから実行>')
+Searching for "pack/*/opt/a:directory_name" in "..."
+Searching for "..."
+not found in 'packpath': "pack/*/opt/a:directory_name"
+<Command lineから実行>
+End
+....
+
+.keymap(kbd::[z])やautocmd(BufWritePost)実行
+[literal]
+....
+<存在しないdirectory name>
+END
+
+" set verbose=11の場合
+Searching for "pack/*/opt/a:directory_name" in "..."
+Searching for "..."
+" 何行か Searching for "..." が続くので省略
+not found in 'packpath': "pack/*/opt/a:directory_name"
+<存在しないdirectory name>
+END
+....
+
+
+== Lua
+
+Luaでも同様です。
+ただ、Lua(`vim.cmd`)の場合、errorが発生したらその後の処理は発生しません。
+その後の処理も実行したい場合は、pcallを利用する必要があります。
+
+=== 動作確認方法
+
+.init.lua
+[source, lua]
+----
+function Packadd_test(directory_name)
+  vim.cmd('packadd ' .. directory_name)
+  print(directory_name)
+  print('END')
+end
+Packadd_test('<存在しないdirectory name>')
+vim.api.nvim_set_keymap(
+  'n',
+  'z',
+  '<cmd>call Packadd_test("<存在しないdirectory name>")<CR>',
+  { noremap = true }
+)
+vim.cmd('autocmd BufWritePost * call Packadd_test("<存在しないdirectory name>")')
+----
+
+.plugin/packadd.lua
+[source, lua]
+----
+Packadd_test('<plugin directoryから実行>')
+----
+
+=== 結果
+
+.Neovim起動時(Errorが発生する)
+[literal]
+....
+Error detected while processing /home/hituzi_no_sippo/dotfiles/config/nvim/init.lua:
+E5113: Error while calling lua chunk: /home/hituzi_no_sippo/.config/nvim/init.lua:2: Vim(packadd):E919: Directory not found in 'packpath': "pack/*/opt/<>
+存在しないdirectory name>"
+Error detected while processing /home/hituzi_no_sippo/dotfiles/config/nvim/plugin/packadd.lua:
+E5113: Error while calling lua chunk: /home/hituzi_no_sippo/.config/nvim/init.lua:2: Vim(packadd):E919: Directory not found in 'packpath': "pack/*/opt/<p
+lugin directoryから実行>"
+....
+
+.commandline(Errorが発生しない)
+[literal]
+....
+set verbose=11
+lua Packadd_test('<Command lineから実行>')
+
+Searching for "pack/*/opt/a:directory_name" in "..."
+Searching for "..."
+" 何行か Searching for "..." が続くので省略
+not found in 'packpath': "pack/*/opt/<plugin directoryから実行>"
+<Command lineから実行>
+END
+....
+
+.keymapやautocmdはerrorが発生したため登録されません
+[literal]
+....
+:map z
+No mapping found
+
+:autocmd BufWritePost
+--- Autocommands ---
+gzip  BufWritePost
+*.gz      call gzip#write("gzip")
+*.bz2     call gzip#write("bzip2")
+*.Z       call gzip#write("compress -f")
+*.lzma    call gzip#write("lzma -z")
+*.xz      call gzip#write("xz -z")
+*.lz      call gzip#write("lzip")
+*.zst     call gzip#write("zstd --rm")
+*.br      call gzip#write("brotli --rm")
+*.lzo     call gzip#write("lzop -U")
+....
+
+=== pcallを利用した場合
+
+.inin.lua
+[source, lua]
+----
+function Packadd_test(directory_name)
+  local ok, error_message = pcall(vim.cmd, 'packadd ' .. directory_name)
+  print(ok)
+  print(error_message)
+end
+Packadd_test('<存在しないdirectory name>')
+----
+
+==== 結果
+
+.Neovim起動時(Errorが発生する)
+[literal]
+....
+false
+Vim(packadd):E919: Directory not found in 'packpath': "pack/*/opt/<存在しないdirectory name>"
+....
+
+.commandline(Errorが発生しない)
+[literal]
+....
+lua Packadd_test('<Command lineから実行>')
+
+true
+....
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
