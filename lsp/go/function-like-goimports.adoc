@@ -1,0 +1,229 @@
+= goimportsのようなimportを整理する関数
+:author: hituzi no sippo
+:email: contact@hituzi-no-sippo.me
+:revnumber: v1.0.0
+:revdate: 2021-09-10T09:36:25+0900
+:revremark: First Edition
+:doctype: article
+:description: Goの必要なpackageを追加し、不要なpackageを削除する関数のcode説明
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-09-10T09:36:25+0900
+:creation-date: 2021-09-09T08:15:09+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [Go, goimports, gopls, LSP]
+
+
+current bufferのimportに対して、次をする関数のcode説明です。
+
+* 必要なpackageを追加する
+* 不要なpackageを削除する
+* package並び替え
+
+link:https://github.com/golang/tools/blob/master/gopls/doc/vim.md#neovim-imports[
+Go公式のlanguage serverのgoplsの公式documentにあるcode^]を参考にしています。
+
+[source, Lua]
+----
+-- goimportsはglobal関数です
+-- _Gが、グローバル名前空間だからです  <1>
+function _G.goimports(timeout_ms)
+  -- codeAction requestの準備をします
+  -- clientがserverへ、textと範囲を送信し
+  -- そのtextに対する変更点・commandを要求するのが
+  -- LSPの `textDocument/codeAction` requestです  <2>
+
+  -- `textDocument/codeAction` requestに使用する、contextを生成します
+  -- curret bufferのcursor位置を使用して、範囲の情報を生成します  <3>
+  local params = vim.lsp.util.make_range_params()
+  -- goimports、import整理のcode actionの変更点だけresponseに含めるように
+  -- serverに要求する設定です  <2>
+  params.context = { only = { "source.organizeImports" } }
+
+  -- "textDocument/codeAction" のrequestを送信して、responseを待ちます
+  -- 対象のbufferは、current buffer(`0`)です
+  -- `timeout_ms` millisecondsの間、responseを待ちます  <2><4>
+  local results = vim.lsp.buf_request_sync(
+    0, "textDocument/codeAction", params, timeout_ms
+  )
+
+  -- LSP serverからの返信がない場合、なにもせず終了します  <2>
+  if not results or next(results) == nil then
+    return
+  end
+
+  -- vim.tbl_valuesを実行して、indexをつめます
+  -- indexの1がなく、2や3だけあるときがあるためです  <5>
+  -- gopls通信しているclient IDが必ず1なら `results[1]` で大丈夫です  <6>
+  local actions = vim.tbl_values(results)[1].result
+
+  -- 変更点、実行するcommandがない場合、なにもせず終了します  <2>
+  if not actions then
+    return
+  end
+
+  -- params.context = { only = { "source.organizeImports" } }
+  -- で、goimportのcode actionだけresponseに含めるように要求したため
+  -- 最初のacion情報だけ取得します
+  local action = actions[1]
+
+  -- 変更点がなく、LSP serverで実行できるcommandの情報がtableではない場合
+  -- LSP serverが引数のcommandをするように
+  -- serverへ `workspace/executeCommand` resquestを送信します  <7><8><9>
+  if not (action.edit or type(action.command) == "table") then
+    vim.lsp.buf.execute_command(action)
+
+    return
+  end
+
+  if action.edit then
+    -- server responseを元に
+    -- workspace内で管理しているresource(current buffer)を変更します  <10><11>
+    vim.lsp.util.apply_workspace_edit(action.edit)
+  end
+
+  -- LSP serverで実行できるcommandの情報がtableの場合
+  -- LSP serverが引数のcommandをするように
+  -- serverへ `workspace/executeCommand` resquestを送信します  <7><8><9>
+  if type(action.command) == "table" then
+    vim.lsp.buf.execute_command(action.command)
+  end
+end
+
+require('lspconfig').gopls.setup{
+  -- go fileを開いた際に、`autocmd` を実行します  <12>
+  on_attach = function()
+    -- `call v:lua.goimports(1000)` = `improve(1000)` です
+    -- v:lua,<function_name>で、luaのglobal関数を呼べます  <13>
+    -- 開いたgo bufferの書き込み前に
+    -- `goimports` を自動実行するように設定します  <14><15>
+    vim.cmd[[
+      autocmd BufWritePre <buffer> call v:lua.goimports(1000)
+    ]]
+  end,
+}
+----
+:LSP-document-url: https://microsoft.github.io/language-server-protocol/specifications/specification-current
+:neovim-document-url: https://neovim.io/doc/user
+:neovim-LSP-document-url: {neovim-document-url}/lsp.html
+:neovim-lua-document-url: {neovim-document-url}/lua.html
+:neovim-LSP-client-document-url: {neovim-LSP-document-url}#vim.lsp.client
+<1> link:https://www.lua.org/manual/5.1/manual.html#pdf-_G[
+    _G: Lua 5.1 Reference Manual^]
+<2> link:{LSP-document-url}/#textDocument_codeAction[
+    Code Action Request: LSP Specifications^]
+<3> link:{neovim-LSP-document-url}#vim.lsp.util.make_range_params()[
+    vim.lsp.util.make_range_params: Nvim documentation: LSP^]
+<4> link:{neovim-LSP-document-url}#vim.lsp.buf_request_sync()[
+    vim.lsp.buf_request_sync: Nvim documentation: LSP^]
+<5> link:{neovim-lua-document-url}#vim.tbl_values()[
+    vim.tbl_values: Nvim documentation: Lua^]
+<6> {blank}
++
+--
+Client IDがあるlink:{neovim-LSP-client-document-url}[
+client object^]を返す、Client IDのcilent objectを返す関数
+
+:get_active_clients-link: link:{neovim-LSP-document-url}#vim.lsp.get_active_clients()[vim.lsp.get_active_clients()^]
+:buf_get_clients-link: link:{neovim-LSP-document-url}#vim.lsp.buf_get_clients()[vim.lsp.buf_get_clients({bufnr})^]
+:get_client_by_id-link: link:{neovim-LSP-document-url}#vim.lsp.get_client_by_id()[vim.lsp.get_client_by_id({client_id})^]
+[horizontal]
+{get_active_clients-link}::
+  起動中のcilentsのclient objectを返す
+{buf_get_clients-link}::
+  引数のbufferに対して、活動しているclientsのcilent objectを返す
+{get_client_by_id-link}::
+  引数のclient idである、cilentのcilent objectを返す
+--
+<7> link:{LSP-document-url}/#textDocument_codeAction[
+    Code Action Requestに対してのresponseに含んでいるobject^]
+    * link:{LSP-document-url}/#workspaceEdit[
+      WorkspaceEdit: LSP Specifications^]
+    * link:{LSP-document-url}/#command[
+      Command: LSP Specifications^]
+<8> link:{LSP-document-url}/#workspace_executeCommand[
+    Execute a Command: LSP Specifications^]
+<9> link:{neovim-LSP-document-url}#vim.lsp.buf.execute_command()[
+    vim.lsp.buf.execute_command: Nvim documentation: LSP^]
+<10> link:{LSP-document-url}/#workspace_applyEdit[
+     Applies a WorkspaceEdit: LSP Specifications^]
+<11> link:{neovim-LSP-document-url}#vim.lsp.util.apply_workspace_edit()[
+     vim.lsp.util.apply_workspace_edit: Nvim documentation: LSP^]
+<12> link:{neovim-LSP-client-document-url}[
+     client.on_attach: Nvim documentation: LSP^]
+<13> link:{neovim-lua-document-url}#v:lua-call[
+     Vimscript v:lua interface: Nvim documentation: Lua^]
+<14> link:{neovim-lua-document-url}#vim.cmd()[
+     vim.cmd^]で、vim commandを使用して、autocmdを登録します。
+     autocmdを登録するLua APIは実装されていません。
+<15> link:{neovim-document-url}/autocmd.html#:autocmd[
+     autocmd command: Nvim documentation: autocmd^]
+
+
+'''
+
+// tag:license[]
+
+:go-LICENSE-link: link:https://github.com/golang/tools/blob/master/LICENSE[LICENSE^]
+.{go-LICENSE-link}
+[%collapsible%open]
+=====
+
+[literal]
+....
+Copyright (c) 2009 The Go Authors. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+   * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+....
+
+=====
+
+// end:license[]
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
