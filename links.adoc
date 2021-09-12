@@ -1,0 +1,77 @@
+= 公式や使えそうなlinks
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-25T08:33:12+0900
+:revremark: First Edition
+:adoctype: article
+:description: Neovim official and usable links.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-24T15:57:13+0900
+:creation-date: 2021-08-24T14:30:57+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: []
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-memo
+:neovim-repository-url: {github-url}/neovim/neovim
+
+
+.公式
+* link:{neovim-repository-url}[Repository^]
+* https://neovim.io/news/[News^]
+* link:https://neovim.discourse.group/[Discussions^]
+* link:https://gitter.im/neovim/neovim[Chatroom^] +
+  Gitterからだけではでく、link:https://app.element.io/#/room/#neovim:matrix.org[
+  Matrix^]から接続もできます。
+  IRCのlink:https://libera.chat/[
+  Libera Chat^]にも接続されています。
+
+.重要
+* link:{neovim-repository-url}/issues/14090[Breaking Changes^]
+* link:{neovim-repository-url}/issues/6289[Change Defaults^]
+
+.Lua
+* link:{neovim-repository-url}/wiki/FAQ#design[
+  なぜLuaなのか。なぜLua 5.1なのか^]
+* link:{github-url}/nanotee/nvim-lua-guide[
+  A guide to using Lua in Neovim^]
+  ** link:{github-url}/willelz/nvim-lua-guide-ja/blob/master/README.ja.md[
+     日本語訳^]
+* link:{github-url}/nvim-lua[Neovim Lua^]
+  ** link:{github-url}/nvim-lua/wishlist/issues[wishlist^]
+
+.その他
+* link:https://github.com/nekowasabi/nvimdoc-ja[
+  neovimヘルプの日本語翻訳^]
+* link:https://www.reddit.com/r/neovim/[reddit^]
+* link:{github-url}/rockerBOO/awesome-neovim[
+  awesome-neovim^]
+* link:{github-url}/nvim-treesitter/nvim-treesitter/wiki/Colorschemes[
+  nvim-treesitterに対応しているColorschemes^]
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
