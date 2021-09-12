@@ -1,9 +1,9 @@
 = Keymaps
 :author: hituzi no sippo
 :!email:
-:revnumber: v1.1.0
-:revdate: 2021-08-24T13:34:39+0900
-:revremark: add section that change CTRL-w and CTRL-u default keymaps
+:revnumber: v1.2.0
+:revdate: 2021-08-24T18:35:53+0900
+:revremark: add section that change CTRL-l default keymaps
 :adoctype: article
 :description: Difference keymaps between Neovim and Vim.
 :title:
@@ -96,6 +96,26 @@ kbd:[CTRL + w] や kbd:[CTRL + u] した地点で止まります。
 
 .PR
 * link:{neovim-repository-url}/pull/15400[set undo points in <C-U>, <C-W>^]
+
+
+== CTRL-L: 再描画前にsearch highlightsの削除とdiffの表示を更新する
+
+normal modeで kbd:[CTRL + l] を押すと、画面を再描画する前に次の2点を実行します。
+
+:nohlsearch-link: link:{neovim-help-url}/pattern.html#:nohlsearch[nohlsearch^]
+:diffupdate-link: link:{neovim-help-url}/diff.html#:diffupdate[diffupdate^]
+. {nohlsearch-link} +
+  search highlightsを削除します。
+  `hlsearch` optionが有効で、search command(e.g. `/foo`) を実行したときに、
+  matchした文字(`foo`)に対するhighlightsを削除します。
+. {diffupdate-link} +
+  diffのhighlightsと折り畳みを更新します。
+
+normal modeのときのみです。visual modeではなりません。
+
+.PR
+* link:{neovim-repository-url}/pull/15385[
+  make <C-L> clear search highlights and update diffs^]
 
 
 // tag::copyright[]
