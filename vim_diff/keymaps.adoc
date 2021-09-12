@@ -1,0 +1,127 @@
+= Keymaps
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.2.0
+:revdate: 2021-08-24T18:35:53+0900
+:revremark: add section that change CTRL-l default keymaps
+:adoctype: article
+:description: Difference keymaps between Neovim and Vim.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-24T12:11:09+0900
+:creation-date: 2021-08-24T07:08:57+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [vim diff, keymap]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-memo
+:neovim-repository-url: {github-url}/neovim/neovim
+:neovim-help-url: https://neovim.io/doc/user
+
+
+Vimと違う、Neovimのdefault keymapsです。
+組み込みの動作は変更せず、default keymapsを変更します。
+`unmap` でvimと同じ動作にできます。
+
+link:{neovim-help-url}/vim_diff.html#default-mappings[
+Official Document: vim_diff default mappings^]
+
+== Y: cursorから行末までyankする
+
+normal modeで kbd:[Y] を押すと、Neovimではcursorから行末までyankします。
+Vimのように、cursor行全体をyankしたい場合は kbd:[yy] でできます。
+normal modeだけで有効です。visual modeで kbd:[Y] を押すと、行全体をyankします
+
+.`abcde12345` という行の `1` にcursorがあるときに kbd:[Y] を押した際のyank結果
+[options='header, autowidth']
+|====
+|       | yankする文字列 | 改行もyankするか
+|Neovim | `12345`        | No
+|Vim    | `abcde12345`   | Yes
+|====
+
+[NOTE]
+====
+* Neovimで `normal! Y` を実行すると、cursor行全体をyankします
+* kbd:[y$] の処理は変更されていません +
+  cursorから行末までyankします。
+====
+
+.PR
+* link:{neovim-repository-url}/pull/13268[default mapping: Y => y$^]
+
+
+== CTRL-{w|u}: 削除前にundo blockを追加する
+
+insert modeで kbd:[CTRL + w] や kbd:[CTRL + u] すると、undo blockを追加してから、文字を削除します。
+kbd:[ctrL + w] や kbd:[CTRL + u] を実行した後の文字には違いはありません。
+undo(kbd:[u])すると、違いがわかります。
+kbd:[CTRL + w] や kbd:[CTRL + u] した地点で止まります。
+
+次の操作をしたとき、undoの結果は表のようになります。
+
+. insert modeにする
+. `abc,` と書く
+. 一旦insert modeから抜けて、normal modeにする
+. insert modeにする
+. `123` と追記して、 kbd:[CTRL + w] で削除する
+. `456` と追記して、 kbd:[CTRL + w] で削除する
+. `789` と追記する
+. insert modeから抜けて、normal modeにする
+. undo(kbd:[u])する
+
+.undo結果
+[options='header, autowidth']
+|====
+|       | undoする前 | undo1回目 | 2回目           | 3回目
+|Neovim | `abc,789`  | `abc,456` | `abc,123`       | `abc,`
+|Vim    | `abc,789`  | `abc,`    | `abc,` も消える |
+|====
+
+.PR
+* link:{neovim-repository-url}/pull/15400[set undo points in <C-U>, <C-W>^]
+
+
+== CTRL-L: 再描画前にsearch highlightsの削除とdiffの表示を更新する
+
+normal modeで kbd:[CTRL + l] を押すと、画面を再描画する前に次の2点を実行します。
+
+:nohlsearch-link: link:{neovim-help-url}/pattern.html#:nohlsearch[nohlsearch^]
+:diffupdate-link: link:{neovim-help-url}/diff.html#:diffupdate[diffupdate^]
+. {nohlsearch-link} +
+  search highlightsを削除します。
+  `hlsearch` optionが有効で、search command(e.g. `/foo`) を実行したときに、
+  matchした文字(`foo`)に対するhighlightsを削除します。
+. {diffupdate-link} +
+  diffのhighlightsと折り畳みを更新します。
+
+normal modeのときのみです。visual modeではなりません。
+
+.PR
+* link:{neovim-repository-url}/pull/15385[
+  make <C-L> clear search highlights and update diffs^]
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]

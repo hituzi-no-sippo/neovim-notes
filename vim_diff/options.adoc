@@ -1,0 +1,111 @@
+= Options
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.2.0
+:revdate: 2021-08-25T09:10:03+0900
+:revremark: add joinspaces
+:adoctype: article
+:description: Difference options between Neovim and Vim.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-24T19:57:13+0900
+:creation-date: 2021-08-24T18:40:57+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [vim diff, option]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-memo
+:neovim-repository-url: {github-url}/neovim/neovim
+:neovim-help-url: https://neovim.io/doc/user
+:neovim-options-help-url: {neovim-help-url}/options.html
+
+
+新規追加・削除したoptionsや、Vimとdefalut値が違うoptionです。
+
+== 新規追加
+
+link:{neovim-help-url}/vim_diff.html#nvim-features[
+Official Document: vim_diff > New > features options^]
+
+
+=== link:{neovim-options-help-url}#'inccommand'[inccommand^]
+
+次のreplace commandsで、replace後の結果をリアルタイムで表示してくれます。
+
+:change-help-url: {neovim-help-url}/change.html
+:substitute-link: link:{change-help-url}#:substitute[substitute^]
+:snomagic-link: link:{change-help-url}#:snomagic[snomagic^]
+:smagic-link: link:{change-help-url}#:smagic[smagic^]
+.Replace Commands
+* {substitute-link} (i.e. `s/before/after`)
+* {snomagic-link}
+* {smagic-link}
+
+.値
+nosplit(default)::
+  Replace後の結果をリアルタイムで表示します。
+  リアルタイムで表示するのは表示範囲内のみです。
+split::
+  Replace後の結果をリアルタイムでpreview window表示します。
+  リアルタイムで表示するのは表示範囲内のみです。
+`set inccommand=` ::
+  Replace後の結果をリアルタイムで表示しません。
+
+.PR
+* link:{neovim-repository-url}/pull/5561[
+  Incsub 4 (renamed to 'inccommand')^]
+* link:{neovim-repository-url}/pull/15395[
+  defaults: inccommand=nosplit^]
+
+[NOTE]
+====
+2016年には追加しており、v0.5でも使用できます。
+====
+
+
+== Default値を変更
+
+=== link:{neovim-options-help-url}#'hidden'[hidden^]
+
+有効(`hidden`)に変更しています。
+変更を保存していないbufferを
+kbd:[CTRL + c](`close`) や `b{previous|nemt}` で非表示にできます。
+
+.PR
+* link:{neovim-repository-url}/pull/15410[
+  defaults: enable 'hidden', disable 'joinspaces'^]
+
+=== link:{neovim-options-help-url}#'joinspaces'[joinspaces^]
+
+無効(`hidden`)に変更しています。
+行末が `.` や `?`, `!` でjoin command(e.g. kbd:[J], `join`)をしても、
+1個しか空白を挿入しません。
+
+.PR
+* link:{neovim-repository-url}/pull/15410[
+  defaults: enable 'hidden', disable 'joinspaces'^]
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
