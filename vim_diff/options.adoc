@@ -1,9 +1,9 @@
 = Options
 :author: hituzi no sippo
 :!email:
-:revnumber: v1.1.0
-:revdate: 2021-08-25T08:55:00+0900
-:revremark: add hidden
+:revnumber: v1.2.0
+:revdate: 2021-08-25T09:10:03+0900
+:revremark: add joinspaces
 :adoctype: article
 :description: Difference options between Neovim and Vim.
 :title:
@@ -86,6 +86,16 @@ split::
 有効(`hidden`)に変更しています。
 変更を保存していないbufferを
 kbd:[CTRL + c](`close`) や `b{previous|nemt}` で非表示にできます。
+
+.PR
+* link:{neovim-repository-url}/pull/15410[
+  defaults: enable 'hidden', disable 'joinspaces'^]
+
+=== link:{neovim-options-help-url}#'joinspaces'[joinspaces^]
+
+無効(`hidden`)に変更しています。
+行末が `.` や `?`, `!` でjoin command(e.g. kbd:[J], `join`)をしても、
+1個しか空白を挿入しません。
 
 .PR
 * link:{neovim-repository-url}/pull/15410[
