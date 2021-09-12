@@ -1,0 +1,66 @@
+= Plugins
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-24T07:44:48+0900
+:revremark: add LSP plugins
+:adoctype: article
+:description: Plugin list
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-24T07:44:48+0900
+:creation-date: 2021-08-22T14:57:09+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [plugin, LSP]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-notes
+
+
+Plugin名のあとに続く日付は、pluginを動かしてみた日付です。
+
+Pluginの設定はdefalut(`require '<Plugin_name>'.setup()`)です。
+defalutから変更している場合は明記します。
+
+== LSP
+
+:neovim-help-url: https://neovim.io/doc/user
+:lsp-help-url: {neovim-help-url}/lsp.html
+link:{lsp-help-url}[
+builtin LSP client^]を利用しているpluginsです。
+
+:leveloffset: +2
+
+include::./lsp/whole.adoc[tag=!copyright]
+
+include::./lsp/editing-supports.adoc[tag=!copyright]
+
+include::./lsp/display.adoc[tag=!copyright]
+
+
+:leveloffset: -2
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
