@@ -1,0 +1,76 @@
+= Keymaps
+:author: hituzi no sippo
+:!email:
+:revnumber: v1.0.0
+:revdate: 2021-08-24T12:11:09+0900
+:revremark: add section that change Y default keymap
+:adoctype: article
+:description: Difference keymaps between Neovim and Vim.
+:title:
+:experimental:
+:showtitle:
+:!sectnums:
+:sectids:
+:toc: preamble
+:sectlinks:
+:sectanchors:
+:idprefix:
+:idseparator: -
+:xrefstyle: full
+:!example-caption:
+:!figure-caption:
+:!table-caption:
+:!listing-caption:
+:copyright: Copyright (c) 2021 {author}
+
+:first-publication-date: 2021-08-24T12:11:09+0900
+:creation-date: 2021-08-24T07:08:57+0900
+
+:copyright-with-author-link: Copyright (c) 2021 link:https://github.com/hituzi-no-sippo[{author}^]
+:tags: [vim diff, keymap]
+:github-url: https://github.com
+:github-profile-url: {github-url}/hituzi-no-sippo
+:repository-url: {github-profile-url}/neovim-memo
+:neovim-repository-url: {github-url}/neovim/neovim
+:neovim-help-url: https://neovim.io/doc/user
+
+
+Vimと違う、Neovimのdefault keymapsです。
+組み込みの動作は変更せず、default keymapsを変更します。
+`unmap` でvimと同じ動作にできます。
+
+link:{neovim-help-url}/vim_diff.html#default-mappings[
+Official Document: vim_diff default mappings^]
+
+== Y: cursorから行末までyankする
+
+normal modeで kbd:[Y] を押すと、Neovimではcursorから行末までyankします。
+Vimのように、cursor行全体をyankしたい場合は kbd:[yy] でできます。
+normal modeだけで有効です。visual modeで kbd:[Y] を押すと、行全体をyankします
+
+.`abcde12345` という行の `1` にcursorがあるときに kbd:[Y] を押した際のyank結果
+[options='header, autowidth']
+|====
+|       | yankする文字列 | 改行もyankするか
+|Neovim | `12345`        | No
+|Vim    | `abcde12345`   | Yes
+|====
+
+[NOTE]
+====
+* Neovimで `normal! Y` を実行すると、cursor行全体をyankします
+* kbd:[y$] の処理は変更されていません +
+  cursorから行末までyankします。
+====
+
+.PR
+* link:{neovim-repository-url}/pull/13268[default mapping: Y => y$^]
+
+
+// tag::copyright[]
+
+'''
+
+{copyright-with-author-link}
+
+// end::copyright[]
